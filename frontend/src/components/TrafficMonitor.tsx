@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TrafficStatus from './TrafficStatus';
 import XMLViewer from './XMLViewer';
+import JSONViewer from './JSONViewer';
 
 interface TrafficData {
   rampId: string;
@@ -27,7 +28,7 @@ const TrafficMonitor: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const [showXml, setShowXml] = useState(false);
+  const [showDataFormat, setShowDataFormat] = useState<'normal' | 'json' | 'xml' | 'both'>('normal');
 
   // Function to fetch traffic data
   const fetchTrafficData = async () => {
@@ -70,7 +71,8 @@ const TrafficMonitor: React.FC = () => {
       const validationStatus = response.headers.get('X-Datex2-Valid');
       setXmlIsValid(validationStatus === 'True');
       
-      setShowXml(true);
+      // Update view to show both formats
+      setShowDataFormat('both');
     } catch (err) {
       setError(`Failed to fetch XML data: ${err instanceof Error ? err.message : String(err)}`);
       console.error(err);
@@ -110,6 +112,16 @@ const TrafficMonitor: React.FC = () => {
     }
   };
 
+  // Function to toggle format view
+  const toggleView = (view: 'normal' | 'json' | 'xml' | 'both') => {
+    setShowDataFormat(view);
+    
+    // If toggling to xml or both and we don't have XML data yet, fetch it
+    if ((view === 'xml' || view === 'both') && !xmlData) {
+      fetchXmlData();
+    }
+  };
+
   // Auto-refresh effect
   useEffect(() => {
     if (autoRefresh) {
@@ -127,7 +139,7 @@ const TrafficMonitor: React.FC = () => {
   }, [rampId]);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Highway Exit Ramp Traffic Monitor</h1>
       
       <div className="flex mb-4 items-center">
@@ -169,39 +181,81 @@ const TrafficMonitor: React.FC = () => {
         </button>
         
         <button
-          onClick={fetchXmlData}
-          disabled={loading}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded disabled:bg-green-300"
+          onClick={() => toggleView('normal')}
+          className={`px-4 py-2 rounded ${showDataFormat === 'normal' ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
         >
-          {loading ? 'Loading...' : 'View Datex2 XML'}
+          View Dashboard
         </button>
         
-        {showXml && (
-          <>
-            <button
-              onClick={() => setShowXml(false)}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-            >
-              Hide XML
-            </button>
-            
-            <button
-              onClick={validateXml}
-              disabled={loading || !xmlData}
-              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded disabled:bg-purple-300"
-            >
-              Validate XML
-            </button>
-          </>
+        <button
+          onClick={() => toggleView('json')}
+          className={`px-4 py-2 rounded ${showDataFormat === 'json' ? 'bg-yellow-500 text-white' : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'}`}
+        >
+          View JSON
+        </button>
+        
+        <button
+          onClick={() => toggleView('xml')}
+          className={`px-4 py-2 rounded ${showDataFormat === 'xml' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
+        >
+          View XML
+        </button>
+        
+        <button
+          onClick={() => toggleView('both')}
+          className={`px-4 py-2 rounded ${showDataFormat === 'both' ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-800 hover:bg-purple-200'}`}
+        >
+          View Both
+        </button>
+        
+        {(showDataFormat === 'xml' || showDataFormat === 'both') && (
+          <button
+            onClick={validateXml}
+            disabled={loading || !xmlData}
+            className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded disabled:bg-purple-300"
+          >
+            Validate XML
+          </button>
         )}
       </div>
       
-      {trafficData && !showXml && (
+      {/* Dashboard View */}
+      {showDataFormat === 'normal' && trafficData && (
         <TrafficStatus data={trafficData} />
       )}
       
-      {showXml && xmlData && (
-        <XMLViewer xml={xmlData} isValid={xmlIsValid} />
+      {/* Side-by-side JSON/XML View */}
+      {showDataFormat === 'both' && trafficData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">JSON Data (Input)</h3>
+            <JSONViewer data={trafficData} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">XML Data (Output)</h3>
+            {xmlData ? (
+              <XMLViewer xml={xmlData} isValid={xmlIsValid} />
+            ) : (
+              <div className="p-4 bg-gray-100 rounded">Loading XML data...</div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* JSON-only View */}
+      {showDataFormat === 'json' && trafficData && (
+        <div>
+          <h3 className="text-lg font-semibold mb-2">JSON Data (Input)</h3>
+          <JSONViewer data={trafficData} />
+        </div>
+      )}
+      
+      {/* XML-only View */}
+      {showDataFormat === 'xml' && xmlData && (
+        <div>
+          <h3 className="text-lg font-semibold mb-2">XML Data (Output)</h3>
+          <XMLViewer xml={xmlData} isValid={xmlIsValid} />
+        </div>
       )}
     </div>
   );
