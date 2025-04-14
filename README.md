@@ -163,3 +163,21 @@ If you see "Internal Server Error" in your frontend, it's typically because the 
    ```
 
 3. Access the application at http://localhost:3000 
+
+## Version Control Setup
+
+This project uses a multi-level .gitignore configuration:
+
+1. **Root `.gitignore`**: Contains common patterns for all projects (system files, editor files, etc.)
+
+2. **Backend `.gitignore`**: Specific for ASP.NET Core projects
+   - Ignores bin/obj directories
+   - Excludes user-specific files
+   - Prevents committing build artifacts and packages
+
+3. **Frontend `.gitignore`**: Tailored for Next.js
+   - Excludes node_modules and build directories
+   - Prevents environment variables from being committed
+   - Ignores generated files like .next/ and build/
+
+This hierarchical approach ensures proper file exclusion while maintaining clarity about what's being ignored in each project. 

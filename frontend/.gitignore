@@ -16,13 +16,21 @@
 # next.js
 /.next/
 /out/
+.next/
+next-error.log
+.next-*
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
 # debug
 npm-debug.log*
@@ -30,8 +38,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# local env files
+.env*.local
+.env
+.env.local
+.env.development
+.env.test
+.env.production
 
 # vercel
 .vercel
@@ -39,3 +52,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache
+.eslintcache
+.stylelintcache
+
+# PWA files
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/fallback-*.js
+**/public/precache.*.*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
