@@ -10,18 +10,31 @@ The project consists of:
    - Simulates traffic sensor data from three monitoring boxes (A, B, C)
    - Analyzes traffic patterns to detect congestion
    - Converts traffic data to Datex2 format (XML)
+   - Validates Datex2 XML against standard schemas
    - Exposes APIs for traffic status and Datex2 output
 
 2. **Frontend (Next.js/React/TypeScript):**
    - Displays real-time traffic conditions
    - Shows detailed information from each monitoring box
    - Visualizes traffic status with color-coding
-   - Provides Datex2 XML output viewer
+   - Provides Datex2 XML output viewer with syntax highlighting
+   - Includes XML validation status indicators
 
 3. **Datex2 Integration:**
    - Uses standard Datex2 schema files for XML validation
    - Implements traffic situation reporting according to Datex2 standards
    - Supports XML output compatible with traffic information systems
+   - Features built-in validation against Datex2 schemas
+
+## XML Validation Features
+
+The system includes comprehensive XML validation capabilities:
+
+- **Automatic Validation**: XML is automatically validated when generated
+- **Manual Validation**: Users can trigger validation with the "Validate XML" button
+- **Visual Indicators**: A colored badge shows validation status (green for valid, red for invalid)
+- **Error Reporting**: Validation failures display helpful error messages
+- **Schema Compliance**: Ensures all generated XML complies with Datex2 standards
 
 ## Getting Started
 
@@ -44,7 +57,7 @@ The project consists of:
    dotnet run
    ```
 
-3. The API should be available at `https://localhost:7234`
+3. The API should be available at `http://localhost:5156`
 
 ### Running the Frontend
 
@@ -68,7 +81,8 @@ The project consists of:
 ## API Endpoints
 
 - `GET /api/Traffic/status/{rampId}` - Get traffic status in JSON format
-- `GET /api/Traffic/datex2/{rampId}` - Get traffic data in Datex2 XML format
+- `GET /api/Traffic/datex2/{rampId}` - Get traffic data in Datex2 XML format (with validation results)
+- `GET /api/Traffic/validate/{rampId}` - Validate Datex2 XML for a specific ramp
 - `GET /api/Traffic/simulate/{rampId}` - Simulate new traffic data for a ramp
 
 ## About Datex2
