@@ -14,15 +14,18 @@ namespace Backend.Controllers
     {
         private readonly ITrafficSensorService _trafficSensorService;
         private readonly IDatex2ConversionService _datex2ConversionService;
+        private readonly IMeasuredDataService _measuredDataService;
         private readonly ILogger<TrafficController> _logger;
         
         public TrafficController(
             ITrafficSensorService trafficSensorService,
             IDatex2ConversionService datex2ConversionService,
+            IMeasuredDataService measuredDataService,
             ILogger<TrafficController> logger)
         {
             _trafficSensorService = trafficSensorService;
             _datex2ConversionService = datex2ConversionService;
+            _measuredDataService = measuredDataService;
             _logger = logger;
         }
         
@@ -76,6 +79,45 @@ namespace Backend.Controllers
             {
                 _logger.LogError(ex, "Error generating Datex2 data");
                 return StatusCode(500, "An error occurred while generating Datex2 data");
+            }
+        }
+        
+        [HttpGet("measured-data/{rampId}")]
+        public async Task<ActionResult> GetMeasuredData(string rampId)
+        {
+            try
+            {
+                // Generate measured data
+                var measuredData = await _measuredDataService.GenerateMeasuredDataAsync(rampId);
+                
+                // Convert to XML
+                var xml = _measuredDataService.GenerateXml(measuredData);
+                
+                // Return XML
+                return Content(xml, "application/xml");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating measured data");
+                return StatusCode(500, "An error occurred while generating measured data");
+            }
+        }
+        
+        [HttpGet("measurement-site-table")]
+        public async Task<ActionResult> GetMeasurementSiteTable()
+        {
+            try
+            {
+                // Get measurement site table
+                var siteTable = await _measuredDataService.GetMeasurementSiteTableAsync();
+                
+                // Return as JSON
+                return Ok(siteTable);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting measurement site table");
+                return StatusCode(500, "An error occurred while getting measurement site table");
             }
         }
         

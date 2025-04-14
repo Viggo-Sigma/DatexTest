@@ -36,17 +36,32 @@ const TrafficMonitor: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5156/api/Traffic/status/${rampId}`);
+      // Add timeout to fetch to handle server not responding
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(`http://localhost:5156/api/Traffic/status/${rampId}`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
       
       const data = await response.json();
       setTrafficData(data);
     } catch (err) {
-      setError(`Failed to fetch traffic data: ${err instanceof Error ? err.message : String(err)}`);
-      console.error(err);
+      console.error("Fetch error:", err);
+      
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setError('Request timed out. Is the backend server running?');
+      } else if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+        setError('Cannot connect to server. Please make sure the backend is running at http://localhost:5156');
+      } else {
+        setError(`Failed to fetch traffic data: ${err instanceof Error ? err.message : String(err)}`);
+      }
     } finally {
       setLoading(false);
     }

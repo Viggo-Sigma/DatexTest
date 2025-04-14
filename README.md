@@ -36,6 +36,36 @@ The system includes comprehensive XML validation capabilities:
 - **Error Reporting**: Validation failures display helpful error messages
 - **Schema Compliance**: Ensures all generated XML complies with Datex2 standards
 
+## Datex2 Data Conversion Details
+
+### Queue Length Calculation
+
+When viewing both JSON and XML data in the UI, you may notice differences in values like queue length. This is intentional:
+
+- **JSON Format (Internal)**: Shows raw sensor measurements directly from the monitoring boxes
+- **Datex2 XML Format (External)**: Applies safety factors and standardization for interoperability
+
+For example, queue lengths in Datex2 format include:
+- A safety margin of approximately 20% over the measured value
+- Rounding to standardized increments for consistency across systems
+
+This means a queue length of 279m in the JSON data might appear as 339m in the Datex2 XML. This follows traffic management best practices where:
+
+1. Internal systems use precise measurements
+2. External data exchange uses conservative estimates for safety
+3. Standardized values ensure compatibility with other traffic systems
+
+These adjustments are handled by the `Datex2ConversionService` during the conversion process.
+
+### Other Data Transformations
+
+Similar transformations occur for other data points:
+- Traffic conditions are mapped to standardized Datex2 terms
+- Timestamps follow the Datex2 convention with multiple time references
+- Location data is formatted according to Datex2 location referencing standards
+
+These transformations ensure our data adheres to the international Datex2 standard while maintaining accurate internal measurements.
+
 ## Getting Started
 
 ### Prerequisites
@@ -93,4 +123,43 @@ This project uses Datex2 schema files for validating XML output, ensuring compat
 
 ## License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
+
+## Troubleshooting
+
+### "Internal Server Error" when accessing the frontend
+
+If you see "Internal Server Error" in your frontend, it's typically because the backend server isn't running or isn't accessible.
+
+#### Fix for Windows/PowerShell:
+
+1. In PowerShell, use a semicolon instead of `&&` to chain commands:
+   ```powershell
+   cd Backend; dotnet run
+   ```
+
+2. Make sure the backend server is running and listening on port 5156 before accessing the frontend.
+
+3. Verify the backend is working by checking an API endpoint directly:
+   ```powershell
+   Invoke-WebRequest -Uri http://localhost:5156/api/Traffic/status/ramp-1
+   ```
+
+4. If you still have issues, check that:
+   - No firewall is blocking the connection
+   - The correct ports are being used (backend: 5156, frontend: 3000)
+   - CORS is properly configured (already set up in this project)
+
+#### Starting both applications:
+
+1. Start the backend in one terminal:
+   ```
+   cd Backend; dotnet run
+   ```
+
+2. Start the frontend in another terminal:
+   ```
+   cd frontend; npm run dev
+   ```
+
+3. Access the application at http://localhost:3000 

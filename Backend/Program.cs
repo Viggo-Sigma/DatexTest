@@ -20,6 +20,7 @@ builder.Services.AddLogging();
 // Register our services
 builder.Services.AddSingleton<ITrafficSensorService, TrafficSensorService>();
 builder.Services.AddSingleton<IDatex2ConversionService, Datex2ConversionService>();
+builder.Services.AddSingleton<IMeasuredDataService, MeasuredDataService>();
 builder.Services.AddSingleton<SchemaSetupService>();
 
 // Setup CORS for frontend - Allow any origin for development/testing
